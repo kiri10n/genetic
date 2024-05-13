@@ -1,50 +1,52 @@
 import random
+import math
 
 def evaluate(gene):
     return sum(gene)
 
-def epoch(present, epoch_count):
+def epoch(present, epoch_count, gene_num):
     print(f"epoch {epoch_count}")
     
-    n = 10
-    mutation_rate = 0.005
-
-    for i in range(n):
-        gene = []
-        for j in range(10):
-            gene.append(0 if random.random() > 0.5 else 1)
-        present.append(gene)
+    mutation_rate = 0.05
 
     eval = [evaluate(gene) for gene in present]
-
-    sorted_eval = sorted(eval, reverse=True)
-    top = eval.index(sorted_eval[0])
-    second = eval.index(sorted_eval[1])
+    weights = list(map(math.exp, eval))
+    print(f"weight {weights}")
 
     children = []
-    for j in range(n):
+    for j in range(gene_num):
         child = []
-        for i in range(10):
-            if random.random() > 0.5:
-                child.append(present[top][i])
-            else:
-                child.append(present[second][i])
+        parents = random.choices(present, k=2, weights=weights)
+        pivot = random.randrange(1, 10)
+
+        child = parents[0][:pivot] + parents[1][pivot:]
         
         if random.random() < mutation_rate:
             child[random.randrange(10)] ^= 1
         
         children.append(child)
     
-    print(f"present_top {['{:.0f}'.format(x) for x in present[top]]}")
+    print(f"present_top {['{:.0f}'.format(x) for x in present[eval.index(max(eval))]]}")
     return children
     
 def main():
-    max_epochs = 30
+    max_epochs = 100
+    gene_num = 10
     present = []
+    for i in range(gene_num):
+        gene = []
+        for j in range(10):
+            gene.append(0 if random.random() > 0.3 else 1)
+        present.append(gene)
+    
+    print(present)
+
     for i in range(max_epochs):
-        children = epoch(present, i+1)
+        children = epoch(present, i+1, gene_num)
         present = children
     
+    print(present)
+
     eval = [evaluate(gene) for gene in present]
     print(f"solution: {['{:.0f}'.format(x) for x in present[eval.index(max(eval))]]}")
 
