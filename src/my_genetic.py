@@ -3,12 +3,17 @@ import random
 def evaluate(gene):
     return sum(gene)
 
-def epoch(present):
+def epoch(present, epoch_count):
+    print(f"epoch {epoch_count}")
+    
     n = 10
     mutation_rate = 0.005
 
     for i in range(n):
-        present.append([random.random()] * 10)
+        gene = []
+        for j in range(10):
+            gene.append(0 if random.random() > 0.5 else 1)
+        present.append(gene)
 
     eval = [evaluate(gene) for gene in present]
 
@@ -26,21 +31,22 @@ def epoch(present):
                 child.append(present[second][i])
         
         if random.random() < mutation_rate:
-            child[random.randrange(10)] = random.random()
+            child[random.randrange(10)] ^= 1
         
         children.append(child)
     
+    print(f"present_top {['{:.0f}'.format(x) for x in present[top]]}")
     return children
     
 def main():
-    max_epochs = 10
+    max_epochs = 30
     present = []
     for i in range(max_epochs):
-        children = epoch(present)
+        children = epoch(present, i+1)
         present = children
     
     eval = [evaluate(gene) for gene in present]
-    print(present[eval.index(max(eval))])
+    print(f"solution: {['{:.0f}'.format(x) for x in present[eval.index(max(eval))]]}")
 
 
 
